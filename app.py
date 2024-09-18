@@ -1,8 +1,10 @@
 import streamlit as st
 
-from langchain.agents import create_pandas_dataframe_agent
-from langchain.chat_models import ChatOpenAI
 from langchain.agents.agent_types import AgentType
+from langchain_experimental.agents.agent_toolkits import create_pandas_dataframe_agent
+from langchain_openai import ChatOpenAI
+from langchain_openai import OpenAI
+import os
 
 import pandas as pd
 
@@ -17,7 +19,7 @@ submit_button = form.form_submit_button(label='Submit')
 if submit_button :
     df = pd.read_csv(uploaded_file)
 
-    st.title("OpenAI Chatbot"
+    st.title("OpenAI DataBot"
              )
     st.subheader("A basic chatbot for interacting with dataset using OpenAI's API")
     
@@ -28,16 +30,11 @@ if submit_button :
     st.markdown("""---""")
 
     st.subheader("AI generated response:")
-    
+    os.environ['OPENAI_API_KEY']=user_api_key
     agent = create_pandas_dataframe_agent(
-        ChatOpenAI(temperature=0, model="gpt-3.5-turbo-16k", openai_api_key=user_api_key),
+        ChatOpenAI(temperature=0),
         df,
-        verbose=True,
-        agent_type=AgentType.OPENAI_FUNCTIONS,
-    )
+        verbose=True,allow_dangerous_code=True)
     
     result = agent.run(text_prompt)
     st.write(result)
-    
-    
-    
